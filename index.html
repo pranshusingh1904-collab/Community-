@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TETR | Community Fellows</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f7f8fb;
+      color: #172033;
+    }
+
+    header {
+      background: #ffffff;
+      border-bottom: 1px solid #e7eaf0;
+      padding: 20px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 2px;
+    }
+
+    .brand span {
+      display: block;
+      font-size: 10px;
+      letter-spacing: 1px;
+      color: #687386;
+      margin-top: 4px;
+    }
+
+    nav {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      cursor: pointer;
+      border: 1px solid #e0e5ef;
+      background: white;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+
+    button.active,
+    button.primary {
+      background: #3559e0;
+      color: white;
+      border-color: #3559e0;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 35px auto;
+      padding: 0 20px;
+    }
+
+    h1 { font-size: 32px; margin-bottom: 8px; }
+    .muted { color: #687386; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin: 25px 0;
+    }
+
+    .card {
+      background: white;
+      padding: 22px;
+      border: 1px solid #e7eaf0;
+      border-radius: 14px;
+      margin-bottom: 16px;
+    }
+
+    .stat-number {
+      font-size: 30px;
+      font-weight: 800;
+      margin-top: 12px;
+    }
+
+    .task {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      align-items: center;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #dfe4ed;
+      border-radius: 8px;
+      margin: 7px 0 15px;
+      font: inherit;
+    }
+
+    textarea { min-height: 120px; }
+
+    label {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .hidden { display: none; }
+
+    .status {
+      font-size: 12px;
+      color: #147d55;
+      background: #e5f6ed;
+      padding: 6px 10px;
+      border-radius: 20px;
+    }
+
+    @media (max-width: 650px) {
+      header { align-items: flex-start; gap: 18px; flex-direction: column; }
+      .stats { grid-template-columns: 1fr; }
+      .task { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="brand">
+      TETR
+      <span>COMMUNITY FELLOWS</span>
+    </div>
+
+    <nav>
+      <button class="active" onclick="showPage('dashboard', this)">Overview</button>
+      <button onclick="showPage('tasks', this)">Weekly Tasks</button>
+      <button onclick="showPage('submissions', this)">Submissions</button>
+      <button onclick="showPage('admin', this)">Admin</button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="dashboard">
+      <p class="muted">YOUR FELLOWSHIP</p>
+      <h1>Build something meaningful.</h1>
+      <p class="muted">View weekly tasks, submit your work and track your progress.</p>
+
+      <div class="stats">
+        <div class="card">
+          <div class="muted">Weekly Tasks</div>
+          <div class="stat-number" id="taskCount">0</div>
+        </div>
+        <div class="card">
+          <div class="muted">Submissions</div>
+          <div class="stat-number" id="submissionCount">0</div>
+        </div>
+        <div class="card">
+          <div class="muted">Completion</div>
+          <div class="stat-number" id="completion">0%</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Welcome to the Community Fellows Portal</h3>
+        <p class="muted">
+          Your central space for weekly assignments, community initiatives,
+          submissions and feedback.
+        </p>
+        <button class="primary" onclick="showPage('tasks')">Explore tasks →</button>
+      </div>
+    </section>
+
+    <section id="tasks" class="hidden">
+      <h1>Weekly Tasks</h1>
+      <p class="muted">Complete your assigned fellowship activities.</p>
+      <div id="taskList"></div>
+    </section>
+
+    <section id="submissions" class="hidden">
+      <h1>My Submissions</h1>
+      <p class="muted">Track the work you have submitted.</p>
+      <div id="submissionList"></div>
+    </section>
+
+    <section id="admin" class="hidden">
+      <h1>Admin Dashboard</h1>
+      <p class="muted">Create tasks and review student submissions.</p>
+
+      <div class="card">
+        <h3>Create a Weekly Task</h3>
+
+        <form id="taskForm">
+          <label>Task title</label>
+          <input id="taskTitle" required placeholder="e.g. Community Reflection">
+
+          <label>Week number</label>
+          <input id="taskWeek" type="number" min="1" value="1" required>
+
+          <label>Instructions</label>
+          <textarea id="taskDescription" required
+            placeholder="Describe the task and expected outcome"></textarea>
+
+          <label>Due date</label>
+          <input id="taskDue" type="date" required>
+
+          <button class="primary" type="submit">Publish Task</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h3>All Student Submissions</h3>
+        <div id="adminSubmissions"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Demo data is stored in this browser only.
+    const KEY = "tetr_fellows_demo";
+
+    let data = JSON.parse(localStorage.getItem(KEY) || "null") || {
+      tasks: [
+        {
+          id: 1,
+          week: 1,
+          title: "Community Introduction",
+          description: "Introduce yourself and share one idea to improve the student community.",
+          due: "2026-10-23"
+        },
+        {
+          id: 2,
+          week: 1,
+          title: "Map Your Student Community",
+          description: "Identify a student need and propose a practical solution.",
+          due: "2026-10-25"
+        }
+      ],
+      submissions: []
+    };
+
+    function save() {
+      localStorage.setItem(KEY, JSON.stringify(data));
+      render();
+    }
+
+    function showPage(page, button) {
+      ["dashboard", "tasks", "submissions", "admin"].forEach(id => {
+        document.getElementById(id).classList.toggle("hidden", id !== page);
+      });
+
+      document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+      if (button) button.classList.add("active");
+
+      render();
+    }
+
+    function render() {
+      const tasks = data.tasks;
+      const submissions = data.submissions;
+
+      document.getElementById("taskCount").textContent = tasks.length;
+      document.getElementById("submissionCount").textContent = submissions.length;
+      document.getElementById("completion").textContent =
+        tasks.length ? Math.round(
+          new Set(submissions.map(s => s.taskId)).size / tasks.length * 100
+        ) + "%" : "0%";
+
+      document.getElementById("taskList").innerHTML = tasks.map(task => {
+        const submitted = submissions.some(s => s.taskId === task.id);
+
+        return `
+          <div class="card task">
+            <div>
+              <p class="muted">WEEK ${task.week} · DUE ${task.due}</p>
+              <h3>${escapeHTML(task.title)}</h3>
+              <p>${escapeHTML(task.description)}</p>
+              ${submitted ? '<span class="status">Submitted</span>' : ""}
+            </div>
+            <button class="primary" onclick="openSubmission(${task.id})">
+              ${submitted ? "View / Revise" : "Submit Work"}
+            </button>
+          </div>
+        `;
+      }).join("") || '<div class="card">No tasks published yet.</div>';
+
+      document.getElementById("submissionList").innerHTML = submissions.map(s => `
+        <div class="card">
+          <h3>${escapeHTML(s.title)}</h3>
+          <p>${escapeHTML(s.answer)}</p>
+          ${s.url ? `<a href="${escapeHTML(s.url)}" target="_blank" rel="noopener">View submitted link</a>` : ""}
+          <p class="muted">Status: ${escapeHTML(s.status)}</p>
+        </div>
+      `).join("") || '<div class="card">You have not submitted any tasks yet.</div>';
+
+      document.getElementById("adminSubmissions").innerHTML = submissions.map(s => `
+        <div class="card">
+          <h3>${escapeHTML(s.title)}</h3>
+          <p>${escapeHTML(s.answer)}</p>
+          <p class="muted">Student: ${escapeHTML(s.student)}</p>
+          <label>Update status</label>
+          <select onchange="updateStatus(${s.id}, this.value)">
+            ${["Submitted", "In review", "Needs revision", "Approved"].map(status =>
+              `<option ${s.status === status ? "selected" : ""}>${status}</option>`
+            ).join("")}
+          </select>
+          <label>Feedback</label>
+          <textarea onchange="updateFeedback(${s.id}, this.value)">${escapeHTML(s.feedback || "")}</textarea>
+        </div>
+      `).join("") || '<p class="muted">No submissions received yet.</p>';
+    }
+
+    function escapeHTML(value = "") {
+      return String(value).replace(/[&<>"']/g, char => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;",
+        '"': "&quot;", "'": "&#39;"
+      })[char]);
+    }
+
+    function openSubmission(taskId) {
+      const task = data.tasks.find(t => t.id === taskId);
+      const existing = data.submissions.find(s => s.taskId === taskId);
+
+      const answer = prompt(
+        "Submit your work for: " + task.title +
+        "\n\nEnter your written response:",
+        existing?.answer || ""
+      );
+
+      if (answer === null) return;
+
+      const url = prompt("Optional: paste a link to your work.", existing?.url || "");
+      if (url === null) return;
+
+      const submission = {
+        id: existing?.id || Date.now(),
+        taskId,
+        title: task.title,
+        student: "Demo Student",
+        answer,
+        url,
+        status: "Submitted",
+        feedback: existing?.feedback || "",
+        submittedAt: new Date().toISOString()
+      };
+
+      if (existing) {
+        data.submissions = data.submissions.map(s =>
+          s.taskId === taskId ? submission : s
+        );
+      } else {
+        data.submissions.push(submission);
+      }
+
+      save();
+      alert("Your submission has been saved in this browser.");
+    }
+
+    function updateStatus(id, status) {
+      const submission = data.submissions.find(s => s.id === id);
+      if (submission) submission.status = status;
+      save();
+    }
+
+    function updateFeedback(id, feedback) {
+      const submission = data.submissions.find(s => s.id === id);
+      if (submission) submission.feedback = feedback;
+      save();
+    }
+
+    document.getElementById("taskForm").addEventListener("submit", event => {
+      event.preventDefault();
+
+      data.tasks.push({
+        id: Date.now(),
+        week: Number(document.getElementById("taskWeek").value),
+        title: document.getElementById("taskTitle").value.trim(),
+        description: document.getElementById("taskDescription").value.trim(),
+        due: document.getElementById("taskDue").value
+      });
+
+      save();
+      event.target.reset();
+      alert("Task added to the demo portal.");
+    });
+
+    render();
+  </script>
+</body>
+</html>
